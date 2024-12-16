@@ -1,2 +1,4 @@
-python-docx
 streamlit
+python-docx
+comtypes; platform_system == "Windows"
+pythoncom; platform_system == "Windows"
