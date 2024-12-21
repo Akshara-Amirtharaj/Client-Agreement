@@ -99,37 +99,6 @@ def replace_placeholders(doc, placeholders):
     return doc
   
 
-def apply_image_placeholder(doc, placeholder_key, image_file):
-    """Replace a placeholder with an image in the Word document, resized to fit a specific size."""
-    try:
-        # Iterate through tables to find the placeholder
-        for table in doc.tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    for para in cell.paragraphs:
-                        if placeholder_key in para.text:
-                            # Clear the placeholder text
-                            para.text = ""
-                            run = para.add_run()
-                            # Resize the image to a fixed width and height (e.g., 1.5 x 1.5 inches)
-                            run.add_picture(image_file, width=Inches(1.5), height=Inches(0.75))  # Adjust dimensions
-                            return doc  # Exit after placing the image
-
-        # Check for the placeholder in paragraphs outside tables
-        for para in doc.paragraphs:
-            if placeholder_key in para.text:
-                # Clear the placeholder text
-                para.text = ""
-                run = para.add_run()
-                # Resize the image to a fixed width and height (e.g., 1.5 x 1.5 inches)
-                run.add_picture(image_file, width=Inches(1.5), height=Inches(0.75))  # Adjust dimensions
-                return doc  # Exit after placing the image
-
-        raise ValueError(f"Placeholder '{placeholder_key}' not found in the document.")
-    except Exception as e:
-        raise Exception(f"Error inserting image: {e}")
-    
-    
 
 def convert_to_pdf(doc_path, pdf_path):
     doc_path = os.path.abspath(doc_path)
@@ -168,7 +137,7 @@ def options_changed():
 st.title("Generator")
 
 # VAT Registration Fields
-template_option = st.selectbox("Select Template", ["VAT Registration", "Service Agreement"])
+template_option = st.selectbox("Select Template", ["VAT Registration", "Service Agreement","Invoice"])
 current_input = {}
 
 if template_option == "VAT Registration":
@@ -183,7 +152,6 @@ if template_option == "VAT Registration":
     vat_registration_fee = st.text_input("VAT Registration Fee")
     consultancy_fee = st.text_input("Consultancy Fee")
     authorized_person_name = st.text_input("Authorized Person Name")
-    signature_image = st.file_uploader("Upload Signature Image", type=["png", "jpg", "jpeg"])
 
     # Prepare inputs for comparison
     current_input = {
@@ -202,7 +170,7 @@ if template_option == "VAT Registration":
     }
 
     if st.button("Generate VAT Document"):
-        if not all(current_input.values()) or not signature_image:
+        if not all(current_input.values()) :
             st.error("Please fill all fields and upload the signature image!")
         else:
             try:
@@ -226,7 +194,6 @@ if template_option == "VAT Registration":
                 template_path = "SAMPLE VAT registration and VAT filling -SME package.docx"
                 doc = Document(template_path)
                 doc = replace_placeholders_vat(doc, placeholders)
-                doc = apply_image_placeholder(doc, "<<Signature Image>>", signature_image)
 
                 word_output = f"VAT {client_name}.docx"
                 pdf_output = word_output.replace(".docx", ".pdf")
@@ -280,7 +247,6 @@ elif template_option == "Service Agreement":
 
     signatory_name = st.text_input("Signatory Name")
     passport_number = st.text_input("Passport Number")
-    signature_image = st.file_uploader("Upload Signature Image", type=["png", "jpg", "jpeg"])
 
     current_input = {
         "template": template_option,
@@ -308,7 +274,7 @@ elif template_option == "Service Agreement":
         "total_cost": total_cost,
         "signatory_name": signatory_name,
         "passport_number": passport_number,
-        "signature_image": signature_image,
+       
     }
 
 
@@ -317,7 +283,6 @@ elif template_option == "Service Agreement":
             client_name.strip(),
             signatory_name.strip(),
             passport_number.strip(),
-            signature_image,
             business_activity_1_isic,
             business_activity_1_name ,
             business_activity_1_desc, 
@@ -358,10 +323,9 @@ elif template_option == "Service Agreement":
 }
                 
                 doc = replace_placeholders(Document("SAMPLE Service Agreement -Company formation -Bahrain - Filled.docx"), placeholders)
-                doc = apply_image_placeholder(doc, "<<Signatory Image>>", signature_image)
 
 
-                word_output = f"Service_Agreement {client_name}.docx"
+                word_output = f"Service Agreement {client_name}.docx"
                 pdf_output = word_output.replace(".docx", ".pdf")
                 doc.save(word_output)
                 convert_to_pdf(word_output, pdf_output)
@@ -380,6 +344,78 @@ elif template_option == "Service Agreement":
         with open(st.session_state["pdf_output"], "rb") as pdf_file:
             st.download_button("Download Service Agreement (PDF)", pdf_file, file_name=st.session_state["pdf_output"])
     
+    elif options_changed():
+        st.session_state.pop("word_output", None)
+        st.session_state.pop("pdf_output", None)
+        
+        
+elif template_option == "Invoice":
+    # Input Fields for Invoice
+    invoice_date = st.date_input("Date", datetime.today())
+    invoice_number = st.text_input("Invoice Number")
+    client_name = st.text_input("Client Name")
+    attention = st.text_input("Attention (Atten)")
+    cost = st.text_input("Cost (in BHD)")
+    total_in_words = st.text_input("Total Amount (in words)")
+    total_amount = st.text_input("Total Amount (in BHD)")
+
+    current_input = {
+        "template": template_option,
+        "invoice_date": invoice_date,
+        "invoice_number": invoice_number,
+        "client_name": client_name,
+        "attention": attention,
+        "cost": cost,
+        "total_in_words": total_in_words,
+        "total_amount": total_amount,
+    }
+
+    if st.button("Generate Invoice"):
+        if not all(current_input.values()):
+            st.error("Please fill all fields!")
+        else:
+            try:
+                reference_number = generate_reference_number()
+                placeholders = {
+                    "<<Date>>": invoice_date.strftime("%d-%m-%Y"),
+                    "<<Invoice Number>>": invoice_number,
+                    "<<Client Name>>": client_name,
+                    "<<Atten>>": attention,
+                    "<<Service Agreement Ref Number>>": reference_number,
+                    "<<Cost>>": cost,
+                    "<<Total In Words>>": total_in_words,
+                    "<<Total Amount>>": total_amount,
+                }
+
+                template_path = "SAMPLE -Invoice BKR2024CF158 - first payment.docx"
+                if not os.path.exists(template_path):
+                    st.error(f"Template file not found: {template_path}")
+                    raise FileNotFoundError(f"Template file not found: {template_path}")
+
+                doc = Document(template_path)
+                doc = replace_placeholders(doc, placeholders)
+
+                word_output = f"Invoice {client_name}.docx"
+                pdf_output = word_output.replace(".docx", ".pdf")
+
+                doc.save(word_output)
+                convert_to_pdf(word_output, pdf_output)
+
+                st.success("Invoice generated successfully!")
+                st.session_state["current_input"] = current_input
+                st.session_state["word_output"] = word_output
+                st.session_state["pdf_output"] = pdf_output
+
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+    # Display download buttons if options haven't changed
+    if not options_changed() and "word_output" in st.session_state and "pdf_output" in st.session_state:
+        with open(st.session_state["word_output"], "rb") as word_file:
+            st.download_button("Download Invoice (Word)", word_file, file_name=os.path.basename(st.session_state["word_output"]))
+        with open(st.session_state["pdf_output"], "rb") as pdf_file:
+            st.download_button("Download Invoice (PDF)", pdf_file, file_name=os.path.basename(st.session_state["pdf_output"]))
+
     elif options_changed():
         st.session_state.pop("word_output", None)
         st.session_state.pop("pdf_output", None)
