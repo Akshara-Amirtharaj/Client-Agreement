@@ -385,6 +385,7 @@ elif template_option == "Invoice":
     invoice_date = st.date_input("Date", datetime.today())
     client_name = st.text_input("Client Name")
     reference_number=st.text_input("Service Agreement Reference Number")
+    remark=st.text_area("Remarks in Website")
     attention = st.text_input("Attention (Atten)")
     cost = st.text_input("Cost (in BHD)")
     total_in_words = st.text_input("Total Amount (in words)")
@@ -402,6 +403,7 @@ elif template_option == "Invoice":
         "reference_number":reference_number,
         "service": service,
         "service_type": service_type,
+        "remark":remark,
     }
 
     if st.button("Generate Invoice"):
@@ -420,6 +422,8 @@ elif template_option == "Invoice":
                     "<<Service>>": service,
                     "<<Total In Words>>": total_in_words,
                     "<<Total Amount>>": total_amount,
+                    "<<Service Type>>":service_type,
+                    "<<Remark>>":remark,
                 }
 
                 template_path = "SAMPLE -Invoice BKR2024CF158 - first payment.docx"
