@@ -134,6 +134,14 @@ def options_changed():
         return False
     return st.session_state["current_input"] != current_input
 
+def generate_unique_reference():
+    """
+    Generate a unique reference number based on the current date and time in the format:
+    DDMMYYYYHHMMSS
+    """
+    now = datetime.now()
+    return now.strftime("%d%m%Y%H%M%S")
+
 st.title("Generator")
 
 # VAT Registration Fields
@@ -352,8 +360,8 @@ elif template_option == "Service Agreement":
 elif template_option == "Invoice":
     # Input Fields for Invoice
     invoice_date = st.date_input("Date", datetime.today())
-    invoice_number = st.text_input("Invoice Number")
     client_name = st.text_input("Client Name")
+    reference_number=st.text_input("Service Agreement Reference Number")
     attention = st.text_input("Attention (Atten)")
     cost = st.text_input("Cost (in BHD)")
     total_in_words = st.text_input("Total Amount (in words)")
@@ -362,12 +370,12 @@ elif template_option == "Invoice":
     current_input = {
         "template": template_option,
         "invoice_date": invoice_date,
-        "invoice_number": invoice_number,
         "client_name": client_name,
         "attention": attention,
         "cost": cost,
         "total_in_words": total_in_words,
         "total_amount": total_amount,
+        "reference_number":reference_number,
     }
 
     if st.button("Generate Invoice"):
@@ -375,7 +383,7 @@ elif template_option == "Invoice":
             st.error("Please fill all fields!")
         else:
             try:
-                reference_number = generate_reference_number()
+                invoice_number=generate_unique_reference();
                 placeholders = {
                     "<<Date>>": invoice_date.strftime("%d-%m-%Y"),
                     "<<Invoice Number>>": invoice_number,
