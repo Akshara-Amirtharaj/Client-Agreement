@@ -366,6 +366,8 @@ elif template_option == "Invoice":
     cost = st.text_input("Cost (in BHD)")
     total_in_words = st.text_input("Total Amount (in words)")
     total_amount = st.text_input("Total Amount (in BHD)")
+    service=st.text_input("Services")
+    service_type=st.text_input("Service Type")
 
     current_input = {
         "template": template_option,
