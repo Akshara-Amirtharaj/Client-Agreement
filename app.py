@@ -358,6 +358,29 @@ elif template_option == "Service Agreement":
         
         
 elif template_option == "Invoice":
+    
+    service_data = {
+        "LMRA Affairs": [
+            "Visa Application", "Visa Termination", "Visa Renewal", "Visa Ceiling Application", "Changing Occupation", "Mobility Issues", "Offences Removal Application", "Runaway Application", "Domestic Permit Application", "LMRA Registration of Establishments", "Work Load Application", "Biometrics Appointment"
+        ],
+        "NPRA (Immigration) Affairs": [
+            "Visa Cancellation and Extension", "Dependent Visa Processing", "Domestic Visa Processing", "Visit Visa Extension", "Business Visit Visa Processing", "Dependent Visit Visa Processing", "Visa Cancellation Update", "Passport Update", "RP Stamping", "eVisa Processing", "Business Investor Visa Processing"
+        ],
+        "SIO Affairs": [
+            "Employee's Registration", "Employee's Termination", "Payment Processing", "Establishment Registration", "Addition Bahraini Employee"
+        ],
+        "CIO Affairs": [
+            "CPR Issuance", "CPR Renewal", "CPR Update", "Dependent CPR", "Lost CPR", "Address Update"
+        ],
+        "CID Affairs": [
+            "Report Issuance for Lost Passport", "Good Conduct Certificate Issuance", "Other Kind of Reports", "CPR Offense Inquiry and Removal"
+        ],
+        "eGovernment": ["Driving School Appointments","EWA Bills","Traffic Contraventions Details","Vehicle Details","Online Appointments"],
+    }
+
+    service_type = st.selectbox("Select Service Type", list(service_data.keys()))
+    service = st.selectbox("Select Service", service_data[service_type])
+    
     # Input Fields for Invoice
     invoice_date = st.date_input("Date", datetime.today())
     client_name = st.text_input("Client Name")
@@ -366,8 +389,7 @@ elif template_option == "Invoice":
     cost = st.text_input("Cost (in BHD)")
     total_in_words = st.text_input("Total Amount (in words)")
     total_amount = st.text_input("Total Amount (in BHD)")
-    service=st.text_input("Services")
-    service_type=st.text_input("Service Type")
+
 
     current_input = {
         "template": template_option,
@@ -378,6 +400,8 @@ elif template_option == "Invoice":
         "total_in_words": total_in_words,
         "total_amount": total_amount,
         "reference_number":reference_number,
+        "service": service,
+        "service_type": service_type,
     }
 
     if st.button("Generate Invoice"):
@@ -393,6 +417,7 @@ elif template_option == "Invoice":
                     "<<Atten>>": attention,
                     "<<Service Agreement Ref Number>>": reference_number,
                     "<<Cost>>": cost,
+                    "<<Service>>": service,
                     "<<Total In Words>>": total_in_words,
                     "<<Total Amount>>": total_amount,
                 }
