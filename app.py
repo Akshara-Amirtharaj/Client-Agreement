@@ -178,9 +178,7 @@ if template_option == "VAT Registration":
     }
 
     if st.button("Generate VAT Document"):
-        if not all(current_input.values()) :
-            st.error("Please fill all fields and upload the signature image!")
-        else:
+       
             try:
                 reference_number = generate_reference_number()
                 placeholders = {
@@ -287,19 +285,7 @@ elif template_option == "Service Agreement":
 
 
     if st.button("Generate Service Agreement Document"):
-        if not all([
-            client_name.strip(),
-            signatory_name.strip(),
-            passport_number.strip(),
-            business_activity_1_isic,
-            business_activity_1_name ,
-            business_activity_1_desc, 
-            business_activity_2_isic ,
-            business_activity_2_name,
-            business_activity_2_desc 
-        ]):
-            st.error("Please fill all required fields!")
-        else:
+        
             try:
                 reference_number = generate_reference_number()
                 placeholders = {
@@ -378,8 +364,11 @@ elif template_option == "Invoice":
         "eGovernment": ["Driving School Appointments","EWA Bills","Traffic Contraventions Details","Vehicle Details","Online Appointments"],
     }
 
-    service_type = st.selectbox("Select Service Type", list(service_data.keys()))
-    service = st.selectbox("Select Service", service_data[service_type])
+    service_type = st.selectbox("Select Service Type", ["None"] + list(service_data.keys()))
+    if service_type != "None":
+       service = st.selectbox("Select Service", ["None"] + service_data[service_type])
+    else:
+       service = "None"
     
     # Input Fields for Invoice
     invoice_date = st.date_input("Date", datetime.today())
@@ -407,9 +396,7 @@ elif template_option == "Invoice":
     }
 
     if st.button("Generate Invoice"):
-        if not all(current_input.values()):
-            st.error("Please fill all fields!")
-        else:
+        
             try:
                 invoice_number=generate_unique_reference();
                 placeholders = {
@@ -419,10 +406,10 @@ elif template_option == "Invoice":
                     "<<Atten>>": attention,
                     "<<Service Agreement Ref Number>>": reference_number,
                     "<<Cost>>": cost,
-                    "<<Service>>": service,
+                    "<<Service>>": service if service != "None" else " ",
                     "<<Total In Words>>": total_in_words,
                     "<<Total Amount>>": total_amount,
-                    "<<Service Type>>":service_type,
+                    "<<Service Type>>": service_type if service_type != "None" else " ",
                     "<<Remark>>":remark,
                 }
 
