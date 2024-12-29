@@ -362,6 +362,10 @@ elif template_option == "Invoice":
             "Report Issuance for Lost Passport", "Good Conduct Certificate Issuance", "Other Kind of Reports", "CPR Offense Inquiry and Removal"
         ],
         "eGovernment": ["Driving School Appointments","EWA Bills","Traffic Contraventions Details","Vehicle Details","Online Appointments"],
+        
+        "MOICT Affairs":["SPC(Single Person Company) Formation","WLL(With Limited Liability) Formation","Partnership Company Formation","Individual Establishment Formation","Sijili Formation","Branch of a Foreign Company Formation","Branch of Addition/Deletion","Company Liquidation","Change Name","Change Address","Change Financial Year","Partner Addition/Deletion","Actvity Addition/Deletion","Transfer Ownership","Change of Directors","Change of Representatives","Change Sponsor","Capital Increase/Decrease","Change Company Period","Change Company Type","Settlement of CR for Deleted by Resolution","Settlement of CR for Deleted wothout Payment","Convert Sijilli Type","Change M&AA Only"],
+        
+        "BIC Affairs":["Original CR","CR Extract","Document Attestation","eKey Assistance"],
     }
 
     service_type = st.selectbox("Select Service Type", ["None"] + list(service_data.keys()))
